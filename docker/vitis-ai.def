@@ -1,7 +1,20 @@
 BootStrap: docker
 From: ubuntu:20.04
 
+%environment
+    export DEBIAN_FRONTEND=noninteractive
+    export TZ=Etc/UTC
+    export PATH=/opt/conda/bin:$PATH
+
 %post
+    export DEBIAN_FRONTEND=noninteractive
+    export TZ=Etc/UTC
+    
+    # Set the timezone
+    echo "Etc/UTC" > /etc/timezone
+    ln -fs /usr/share/zoneinfo/Etc/UTC /etc/localtime
+    dpkg-reconfigure -f noninteractive tzdata
+    
     apt-get update && apt-get install -y \
         wget \
         curl \
@@ -19,14 +32,10 @@ From: ubuntu:20.04
     # Install Conda and Vitis AI packages
     wget -O /tmp/conda-channel.tar.gz ${VAI_CONDA_CHANNEL}
     tar -xzf /tmp/conda-channel.tar.gz -C /opt
-    export PATH=/opt/conda/bin:$PATH
-    conda install -y tensorflow==2.4.1 pytorch==1.8.0 torchvision==0.9.0
+    /opt/conda/bin/conda install -y tensorflow==2.4.1 pytorch==1.8.0 torchvision==0.9.0
 
     # Cleanup
     rm /tmp/xrt.deb /tmp/xrm.deb /tmp/conda-channel.tar.gz
-
-%environment
-    export PATH=/opt/conda/bin:$PATH
 
 %runscript
     exec "$@"
