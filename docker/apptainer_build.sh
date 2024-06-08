@@ -5,17 +5,17 @@ VERSION="${VERSION:-$(cat dockerfiles/VERSION.txt)}"
 XRT_URL="${XRT_URL:-https://www.xilinx.com/bin/public/openDownload?filename=xrt_202220.2.14.418_20.04-amd64-xrt.deb}"
 XRM_URL="${XRM_URL:-https://www.xilinx.com/bin/public/openDownload?filename=xrm_202220.1.5.212_20.04-x86_64.deb}"
 VAI_CONDA_CHANNEL="${VAI_CONDA_CHANNEL:-https://www.xilinx.com/bin/public/openDownload?filename=conda-channel-3.5.0.tar.gz}"
-VAI_DEB_CHANNEL="${VAI_DEB_CHANNEL:-https://www.xilinx.com/bin/public/openDownload?filename=vairuntime-3.5.0.tar.gz}"
 
 # Create Apptainer definition file
 cat <<EOF > vitis-ai.def
 BootStrap: docker
-From: ubuntu:20.04
+From: nvidia/cuda:11.8.0-cudnn8-devel-ubuntu20.04
 
 %environment
     export DEBIAN_FRONTEND=noninteractive
     export TZ=Etc/UTC
-    export PATH=/opt/conda/bin:$PATH
+    export PATH=/opt/conda/bin:\$PATH
+    export LD_LIBRARY_PATH=/usr/local/cuda/lib64:\$LD_LIBRARY_PATH
 
 %post
     export DEBIAN_FRONTEND=noninteractive
@@ -41,10 +41,13 @@ From: ubuntu:20.04
     wget -O /tmp/xrm.deb ${XRM_URL}
     dpkg -i /tmp/xrt.deb /tmp/xrm.deb
 
-    # Install Conda and Vitis AI packages
+    # Install Conda
     wget -O /tmp/conda-channel.tar.gz ${VAI_CONDA_CHANNEL}
     tar -xzf /tmp/conda-channel.tar.gz -C /opt
-    /opt/conda/bin/conda install -y tensorflow==2.4.1 pytorch==1.8.0 torchvision==0.9.0
+    /opt/conda/bin/conda install -y \
+        pytorch=1.8.0 \
+        torchvision=0.9.0 \
+        cudatoolkit=11.0
 
     # Cleanup
     rm /tmp/xrt.deb /tmp/xrm.deb /tmp/conda-channel.tar.gz
