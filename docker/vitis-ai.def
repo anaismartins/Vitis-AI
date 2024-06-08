@@ -1,0 +1,32 @@
+BootStrap: docker
+From: ubuntu:20.04
+
+%post
+    apt-get update && apt-get install -y \
+        wget \
+        curl \
+        git \
+        python3 \
+        python3-pip \
+        libopencv-dev \
+        && rm -rf /var/lib/apt/lists/*
+
+    # Install XRT and XRM
+    wget -O /tmp/xrt.deb ${XRT_URL}
+    wget -O /tmp/xrm.deb ${XRM_URL}
+    dpkg -i /tmp/xrt.deb /tmp/xrm.deb
+
+    # Install Conda and Vitis AI packages
+    wget -O /tmp/conda-channel.tar.gz ${VAI_CONDA_CHANNEL}
+    tar -xzf /tmp/conda-channel.tar.gz -C /opt
+    export PATH=/opt/conda/bin:$PATH
+    conda install -y tensorflow==2.4.1 pytorch==1.8.0 torchvision==0.9.0
+
+    # Cleanup
+    rm /tmp/xrt.deb /tmp/xrm.deb /tmp/conda-channel.tar.gz
+
+%environment
+    export PATH=/opt/conda/bin:$PATH
+
+%runscript
+    exec "$@"
