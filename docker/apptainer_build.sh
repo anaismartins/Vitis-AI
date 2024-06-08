@@ -8,7 +8,7 @@ VAI_CONDA_CHANNEL="${VAI_CONDA_CHANNEL:-https://www.xilinx.com/bin/public/openDo
 
 # Create Apptainer definition file
 cat <<EOF > vitis-ai.def
-BootStrap: docker
+Bootstrap: docker
 From: nvidia/cuda:11.8.0-cudnn8-devel-ubuntu20.04
 
 %environment
@@ -67,8 +67,8 @@ From: nvidia/cuda:11.8.0-cudnn8-devel-ubuntu20.04
     exec "\$@"
 EOF
 
-# Build the Apptainer container
-apptainer build vitis-ai.sif vitis-ai.def
+# Build the Apptainer container using user namespace
+apptainer build --fakeroot vitis-ai.sif vitis-ai.def
 
 if [ $? -eq 0 ]; then
     echo "Apptainer container built successfully: vitis-ai.sif"
