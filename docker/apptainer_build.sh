@@ -50,7 +50,7 @@ From: nvidia/cuda:11.8.0-cudnn8-devel-ubuntu20.04
     # Install XRT and XRM
     wget -O /tmp/xrt.deb ${XRT_URL}
     wget -O /tmp/xrm.deb ${XRM_URL}
-    dpkg -i /tmp/xrt.deb /tmp/xrm.deb
+    dpkg -i /tmp/xrt.deb /tmp/xrm.deb || apt-get install -f -y
 
     # Install Conda
     wget -O /tmp/conda-channel.tar.gz ${VAI_CONDA_CHANNEL}
@@ -67,11 +67,16 @@ From: nvidia/cuda:11.8.0-cudnn8-devel-ubuntu20.04
     exec "\$@"
 EOF
 
-# Build the Apptainer container using user namespace
-apptainer build --fakeroot vitis-ai.sif vitis-ai.def
+# Create a writable image for building the container
+apptainer build --sandbox vitis-ai-tmp.sif vitis-ai.def
+
+# Convert the writable image to a read-only SIF file
+apptainer build vitis-ai.sif vitis-ai-tmp.sif
 
 if [ $? -eq 0 ]; then
     echo "Apptainer container built successfully: vitis-ai.sif"
+    # Clean up the temporary writable image
+    rm -rf vitis-ai-tmp.sif
 else
     echo "Failed to build Apptainer container"
     exit 1
