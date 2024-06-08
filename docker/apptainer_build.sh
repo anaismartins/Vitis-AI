@@ -67,16 +67,11 @@ From: nvidia/cuda:11.8.0-cudnn8-devel-ubuntu20.04
     exec "\$@"
 EOF
 
-# Create a writable image for building the container
-apptainer build --sandbox vitis-ai-tmp.sif vitis-ai.def
-
-# Convert the writable image to a read-only SIF file
-apptainer build vitis-ai.sif vitis-ai-tmp.sif
+# Build the Apptainer container
+apptainer build vitis-ai.sif vitis-ai.def
 
 if [ $? -eq 0 ]; then
     echo "Apptainer container built successfully: vitis-ai.sif"
-    # Clean up the temporary writable image
-    rm -rf vitis-ai-tmp.sif
 else
     echo "Failed to build Apptainer container"
     exit 1
