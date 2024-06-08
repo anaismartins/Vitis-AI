@@ -29,6 +29,17 @@ From: nvidia/cuda:11.8.0-cudnn8-devel-ubuntu20.04
         python3-pip \
         libopencv-dev \
         tzdata \
+        lsb-release \
+        dkms \
+        udev \
+        ocl-icd-opencl-dev \
+        uuid-dev \
+        libboost-filesystem1.71.0 \
+        libboost-program-options1.71.0 \
+        libboost-serialization-dev \
+        libboost-system-dev \
+        libboost-filesystem-dev \
+        libboost-thread-dev \
         && rm -rf /var/lib/apt/lists/*
 
     # Set the timezone
